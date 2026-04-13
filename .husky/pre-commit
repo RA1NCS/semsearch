@@ -1,1 +1,7 @@
+# block ai tooling files from ever entering the repo
+if git diff --cached --name-only | grep -qE '^(CLAUDE|AGENTS)\.md$'; then
+  echo "error: CLAUDE.md / AGENTS.md must not be committed — remove from staging"
+  exit 1
+fi
+
 pnpm lint-staged
