@@ -1,83 +1,73 @@
 # Semantic Text Search
 
-A web application that demonstrates semantic text search. Enter a search query and get the most relevant documents based on meaning, not keyword matching.
+Semantic search over 146 documents using Gemini embeddings. Queries match by meaning, not keywords. All ranking logic runs in code — the LLM only produces vectors.
 
 ## Setup
 
-### Prerequisites
-
-- Node.js 22+
-- pnpm
-- Gemini API key ([get one here](https://aistudio.google.com/apikey))
-
-### Install and run
+**Prerequisites:** Node.js 22+, pnpm, [Gemini API key](https://aistudio.google.com/apikey)
 
 ```bash
 pnpm install
 ```
 
-Add your Gemini API key to `.env`:
-
 ```
+# .env
 GEMINI_API_KEY=your_key_here
 ```
 
 ```bash
-pnpm dev
-```
-
-Open http://localhost:3000, click "Index Documents" to generate embeddings, then search.
-
-### Docker
-
-```bash
-docker compose up --build
-```
-
-### Run tests
-
-```bash
-pnpm vitest run
+pnpm dev          # http://localhost:3000
+make docker       # docker compose up --build
+make test         # vitest run
 ```
 
 ## How it works
 
 ### Dataset
 
-146 documents stored as individual text files in `data/documents/`, covering 15 topic categories: animals, programming, sports, food, science, history, geography, music, medicine, space, math, literature, architecture, marine life, and daily life.
+146 single-sentence documents in `data/documents/` (one `.txt` per doc), spanning 15 categories: animals, programming, sports, food, science, history, geography, music, medicine, space, math, literature, architecture, marine life, daily life.
 
 ### Indexing
 
-When you click "Index Documents", the app:
-
-1. Reads all 146 document files
-2. Sends them to Gemini's embedding API in batches of 20, using the `RETRIEVAL_DOCUMENT` task type
-3. Streams progress back to the UI in real time via Server-Sent Events
-4. Saves all embeddings to `data/embeddings.json` as a file-based cache
-
-The cache persists across server restarts. Re-indexing overwrites the cache.
+Triggered by the "Start Indexing" button. Reads all 146 files → embeds in batches of 20 using `RETRIEVAL_DOCUMENT` task type → streams progress to the UI via SSE → writes vectors to `data/embeddings.json`. Cache survives restarts; re-indexing overwrites it.
 
 ### Search
 
-When you submit a query:
+Query is embedded with `RETRIEVAL_QUERY` task type → cosine similarity against all 146 cached vectors → dynamic threshold filters results → up to 15 ranked results returned.
 
-1. The query is embedded using Gemini with the `RETRIEVAL_QUERY` task type (asymmetric embedding optimized for matching queries against documents)
-2. Cosine similarity is computed between the query vector and all 146 document vectors
-3. A dynamic threshold filters results: only documents scoring above `mean + 1 standard deviation` are returned
-4. Results are capped at 15 and sorted by descending similarity
+**Asymmetric task types are required.** Using `RETRIEVAL_DOCUMENT` for docs and `RETRIEVAL_QUERY` for queries is what makes Gemini embeddings work for retrieval. Without it, scores collapse to 0.03–0.05 (effectively random). With it: 0.60–0.75.
 
 ### Dynamic threshold
 
-Instead of returning a fixed number of results, the threshold adapts to the score distribution:
+`cutoff = mean(scores) + 1 × stddev(scores)`
 
-- **Focused queries** ("animals that fly"): most documents score low, a few score high. The threshold captures the semantic cluster.
-- **Broad queries** ("technology"): higher variance in scores means more results pass the threshold.
-- **Nonsense queries** ("asdjkfh"): all scores cluster tightly with low standard deviation. The threshold sits near the max score, so few or zero results are returned.
+Adapts to the score distribution without a fixed top-K:
+
+- Focused query → scores bimodal → threshold sits between clusters → tight result set
+- Broad query → high variance → more results pass
+- Nonsense query → all scores near-uniform, near-zero stddev → cutoff ≈ max → zero results
+
+### API
+
+| Route            | Method | Description                                                                  |
+| ---------------- | ------ | ---------------------------------------------------------------------------- |
+| `/api/status`    | GET    | Returns `{ indexed, documentCount, embeddingCount }`                         |
+| `/api/index`     | POST   | Streams SSE progress events, writes cache on completion                      |
+| `/api/search?q=` | GET    | Returns ranked results + threshold metadata. Rate-limited: 10 req/min per IP |
+
+### Core library
+
+| File                | Exports                                                                        |
+| ------------------- | ------------------------------------------------------------------------------ |
+| `lib/similarity.ts` | `cosineSimilarity`, `computeThreshold`, `rankResults` — pure functions, no LLM |
+| `lib/embeddings.ts` | `embedText`, `embedBatch`, `loadCache`, `saveCache`, `cacheExists`             |
+| `lib/documents.ts`  | `loadDocuments` — reads and sorts `.txt` files from `data/documents/`          |
 
 ## Stack
 
-- **Next.js 16** with App Router
-- **Tailwind CSS 4** for styling
-- **Gemini API** (`gemini-embedding-001`) for text embeddings
-- **Vitest** for unit tests
-- **Docker** for containerized deployment
+- **Next.js 16** (App Router) + **Tailwind CSS 4**
+- **Gemini API** — `gemini-embedding-001`, 3072-dim vectors
+- **Vitest** — unit tests for cosine similarity and threshold logic
+- **Docker** — multi-stage build, non-root user, healthcheck on `/api/status`
+- **GitHub Actions** — lint + typecheck + tests on every push
+- **husky + lint-staged** — ESLint + Prettier on pre-commit
