@@ -42,3 +42,7 @@ data/embeddings.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code config
+CLAUDE.md
+AGENTS.md
