@@ -1,6 +1,6 @@
 # Semantic Text Search
 
-Semantic search over 146 documents using Gemini embeddings. Queries match by meaning, not keywords. All ranking logic runs in code — the LLM only produces vectors.
+Semantic search over 146 documents using Gemini embeddings. Queries match by meaning, not keywords. All ranking logic runs in code; the LLM only produces vectors.
 
 ## Setup
 
@@ -59,15 +59,15 @@ Adapts to the score distribution without a fixed top-K:
 
 | File                | Exports                                                                        |
 | ------------------- | ------------------------------------------------------------------------------ |
-| `lib/similarity.ts` | `cosineSimilarity`, `computeThreshold`, `rankResults` — pure functions, no LLM |
+| `lib/similarity.ts` | `cosineSimilarity`, `computeThreshold`, `rankResults` (pure functions, no LLM) |
 | `lib/embeddings.ts` | `embedText`, `embedBatch`, `loadCache`, `saveCache`, `cacheExists`             |
-| `lib/documents.ts`  | `loadDocuments` — reads and sorts `.txt` files from `data/documents/`          |
+| `lib/documents.ts`  | `loadDocuments`, reads and sorts `.txt` files from `data/documents/`           |
 
 ## Stack
 
 - **Next.js 16** (App Router) + **Tailwind CSS 4**
-- **Gemini API** — `gemini-embedding-001`, 3072-dim vectors
-- **Vitest** — unit tests for cosine similarity and threshold logic
-- **Docker** — multi-stage build, non-root user, healthcheck on `/api/status`
-- **GitHub Actions** — lint + typecheck + tests on every push
-- **husky + lint-staged** — ESLint + Prettier on pre-commit
+- **Gemini API** `gemini-embedding-2-preview`, 3072-dim vectors
+- **Vitest** unit tests for cosine similarity and threshold logic
+- **Docker** multi-stage build, non-root user, healthcheck on `/api/status`
+- **GitHub Actions** lint + typecheck + tests on every push
+- **husky + lint-staged** ESLint + Prettier on pre-commit
