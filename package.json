@@ -37,5 +37,11 @@
     "*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
