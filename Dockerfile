@@ -25,6 +25,11 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/data/documents ./data/documents
 
+# non-root user for security
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+USER nextjs
+
 EXPOSE 3000
 ENV PORT=3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 CMD wget -q -O /dev/null http://localhost:3000/api/status || exit 1
 CMD ["node", "server.js"]

@@ -521,7 +521,7 @@ function QueryInput({
 }
 
 // ══ MAIN PAGE ════════════════════════════════════════════════════════════════
-export default function Home() {
+export default function DesignPrototype() {
   const pipe = usePipeline();
   const {
     indexed,
@@ -570,6 +570,16 @@ export default function Home() {
 
   return (
     <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+        * { font-family: 'DM Sans', system-ui, sans-serif; box-sizing: border-box; }
+        @keyframes flowDot { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 14px); opacity: 0; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeUp 0.35s ease-out forwards; opacity: 0; }
+      `}</style>
+
       <div
         className="min-h-[100dvh]"
         style={{ background: "#FFFBF5", color: "#1a1a2e" }}
