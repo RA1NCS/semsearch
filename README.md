@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Semantic Text Search
 
-## Getting Started
+A web application that demonstrates semantic text search. Enter a search query and get the most relevant documents based on meaning, not keyword matching.
 
-First, run the development server:
+## Setup
+
+### Prerequisites
+
+- Node.js 22+
+- pnpm
+- Gemini API key ([get one here](https://aistudio.google.com/apikey))
+
+### Install and run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Add your Gemini API key to `.env`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+GEMINI_API_KEY=your_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev
+```
 
-## Learn More
+Open http://localhost:3000, click "Index Documents" to generate embeddings, then search.
 
-To learn more about Next.js, take a look at the following resources:
+### Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker compose up --build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Run tests
 
-## Deploy on Vercel
+```bash
+pnpm vitest run
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## How it works
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dataset
+
+146 documents stored as individual text files in `data/documents/`, covering 15 topic categories: animals, programming, sports, food, science, history, geography, music, medicine, space, math, literature, architecture, marine life, and daily life.
+
+### Indexing
+
+When you click "Index Documents", the app:
+
+1. Reads all 146 document files
+2. Sends them to Gemini's embedding API in batches of 20, using the `RETRIEVAL_DOCUMENT` task type
+3. Streams progress back to the UI in real time via Server-Sent Events
+4. Saves all embeddings to `data/embeddings.json` as a file-based cache
+
+The cache persists across server restarts. Re-indexing overwrites the cache.
+
+### Search
+
+When you submit a query:
+
+1. The query is embedded using Gemini with the `RETRIEVAL_QUERY` task type (asymmetric embedding optimized for matching queries against documents)
+2. Cosine similarity is computed between the query vector and all 146 document vectors
+3. A dynamic threshold filters results: only documents scoring above `mean + 1 standard deviation` are returned
+4. Results are capped at 15 and sorted by descending similarity
+
+### Dynamic threshold
+
+Instead of returning a fixed number of results, the threshold adapts to the score distribution:
+
+- **Focused queries** ("animals that fly"): most documents score low, a few score high. The threshold captures the semantic cluster.
+- **Broad queries** ("technology"): higher variance in scores means more results pass the threshold.
+- **Nonsense queries** ("asdjkfh"): all scores cluster tightly with low standard deviation. The threshold sits near the max score, so few or zero results are returned.
+
+## Stack
+
+- **Next.js 16** with App Router
+- **Tailwind CSS 4** for styling
+- **Gemini API** (`gemini-embedding-001`) for text embeddings
+- **Vitest** for unit tests
+- **Docker** for containerized deployment
