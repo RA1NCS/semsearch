@@ -30,21 +30,19 @@ export async function embedText(text: string): Promise<number[]> {
   return result.embeddings![0].values!;
 }
 
-// embed documents for indexing (RETRIEVAL_DOCUMENT optimizes for being matched against queries)
+// embed documents for indexing — parallel within each batch
 export async function embedBatch(texts: string[]): Promise<number[][]> {
   const ai = getClient();
-  const embeddings: number[][] = [];
-
-  for (const text of texts) {
-    const result = await ai.models.embedContent({
-      model: MODEL,
-      contents: text,
-      config: { taskType: "RETRIEVAL_DOCUMENT" },
-    });
-    embeddings.push(result.embeddings![0].values!);
-  }
-
-  return embeddings;
+  const results = await Promise.all(
+    texts.map((text) =>
+      ai.models.embedContent({
+        model: MODEL,
+        contents: text,
+        config: { taskType: "RETRIEVAL_DOCUMENT" },
+      }),
+    ),
+  );
+  return results.map((r) => r.embeddings![0].values!);
 }
 
 // check if cache exists and is valid
