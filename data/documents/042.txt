@@ -1,0 +1,1 @@
+CRISPR-Cas9 works by guiding a molecular scissor to a specific DNA sequence where it makes a precise cut, allowing scientists to delete, replace, or insert genetic material.

@@ -1,0 +1,1 @@
+Geodesic domes distribute stress across a network of triangles, enclosing the maximum volume with the minimum surface area.

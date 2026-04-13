@@ -1,0 +1,1 @@
+Python's Global Interpreter Lock prevents multiple native threads from executing Python bytecodes simultaneously, which is why multiprocessing is preferred for CPU-bound tasks.

@@ -1,0 +1,1 @@
+Euler's number e is approximately 2.71828 and serves as the base of natural logarithms.

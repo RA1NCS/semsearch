@@ -1,0 +1,1 @@
+Functional programming treats computation as the evaluation of mathematical functions and avoids changing state or mutable data, reducing side effects.

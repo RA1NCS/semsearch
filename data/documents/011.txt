@@ -1,0 +1,1 @@
+Rust guarantees memory safety at compile time without a garbage collector by using an ownership system with borrowing and lifetime rules.

@@ -1,0 +1,1 @@
+WebAssembly allows languages like C++ and Rust to run in the browser at near-native speed by compiling to a portable binary instruction format.

@@ -1,0 +1,1 @@
+TCP uses a three-way handshake consisting of SYN, SYN-ACK, and ACK packets to establish a reliable connection before any data is transmitted.

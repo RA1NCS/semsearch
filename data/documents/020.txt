@@ -1,0 +1,1 @@
+OAuth 2.0 separates the role of the resource owner from the client application by issuing scoped access tokens through an authorization server.

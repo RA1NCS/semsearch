@@ -1,0 +1,1 @@
+Git stores snapshots of your entire project at each commit rather than diffs between files, which is why operations like branching and merging are so fast.

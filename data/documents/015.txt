@@ -1,0 +1,1 @@
+Docker containers share the host OS kernel unlike virtual machines, making them significantly lighter and faster to start up.

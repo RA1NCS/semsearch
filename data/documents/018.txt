@@ -1,0 +1,1 @@
+B-trees are the data structure behind most database indexes because they minimize disk I/O by keeping data sorted and allowing searches in logarithmic time.

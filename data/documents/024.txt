@@ -1,0 +1,1 @@
+A perfect game in bowling requires 12 consecutive strikes because the tenth frame awards two bonus throws if you strike.

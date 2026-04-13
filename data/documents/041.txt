@@ -1,0 +1,1 @@
+Quantum entanglement allows two particles to be correlated such that measuring the state of one instantly determines the state of the other regardless of the distance between them.

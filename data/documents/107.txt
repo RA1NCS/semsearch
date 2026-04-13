@@ -1,0 +1,1 @@
+Game theory uses mathematical models to analyze strategic interactions where the outcome for each participant depends on the choices of others.

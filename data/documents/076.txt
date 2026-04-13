@@ -1,0 +1,1 @@
+A musical octave represents a doubling of frequency, so the note A above middle C vibrates at 440 Hz while the A one octave higher vibrates at 880 Hz.
